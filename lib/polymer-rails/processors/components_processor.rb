@@ -20,7 +20,7 @@ module Polymer
 
       def require_imports
         @component.imports.each do |import|
-          path = component_path(import.attributes['href'].value)
+          path = absolute_asset_path(import.attributes['href'].value)
           next unless path
           @context.require_asset path
           import.remove
@@ -48,19 +48,28 @@ module Polymer
       end
 
       def asset_content(file)
-        dir  = File.dirname(@context.pathname)
-        path = File.absolute_path(file, dir)
-        @context.evaluate path
+        asset_path = absolute_asset_path(file)
+        asset      = find_asset(asset_path)
+        unless asset.blank?
+          @context.depend_on_asset asset_path
+          asset.to_s
+        else
+          nil
+        end
       end
 
-      def component_path(file)
+      def absolute_asset_path(file)
         search_file = file.sub(/^(\.\.\/)+/, '/').sub(/^\/*/, '')
         ::Rails.application.assets.paths.each do |path|
           file_list = Dir.glob( "#{File.absolute_path search_file, path }*")
           return file_list.first unless file_list.blank?
         end
-        component = File.absolute_path file, File.dirname(@context.pathname)
-        return File.exists?(component) ? component : nil
+        components = Dir.glob("#{File.absolute_path file, File.dirname(@context.pathname)}*")
+        return components.blank? ? nil : components.first
+      end
+
+      def find_asset(asset_path)
+        ::Rails.application.assets.find_asset(asset_path)
       end
 
     end

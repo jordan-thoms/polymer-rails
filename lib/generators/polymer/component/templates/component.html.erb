@@ -1,15 +1,9 @@
-<polymer-element name="<%= name %>">
+<polymer-element name="<%= component_name %>">
   <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
+    <link rel="stylesheet" href="<%= component_name %>.css" />
 
     <h2><%= file_name.capitalize.gsub('_', ' ') %></h2>
   </template>
 
-  <script type="text/javascript">
-    Polymer('<%= name %>');
-  </script>
+  <script src="<%= component_name %>.js"></script>
 </polymer-element>
